@@ -23,6 +23,21 @@ public class BreweryService {
                 .collect(Collectors.toList());
     }
 
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private BreweryDTO toDTO(Brewery brewery){
         BreweryDTO dto = new BreweryDTO();
         dto.setBreweryId(brewery.getBreweryId());
