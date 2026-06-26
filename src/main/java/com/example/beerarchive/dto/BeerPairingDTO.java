@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 public class BeerPairingDTO {
     private Long beerPairingId;
     private Long beerId;
-    private Long foodId;
+    private String beerName;
+    private String foodCategory;
+    private String foodEmoji;
     private String description;
     private int likeCount;
 

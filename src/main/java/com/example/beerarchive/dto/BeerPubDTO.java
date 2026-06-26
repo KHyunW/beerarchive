@@ -9,8 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FoodDTO {
-    private Long foodId;
-    private String foodName;
-    private String foodCategory;
+public class BeerPubDTO {
+    private Long pubId;
+    private String pubName;
+    private String pubAddress;
+    private double pubLatitude;
+    private double pubLongitude;
+    
 }

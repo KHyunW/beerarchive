@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class BeerLikeDTO {
-    private Long beerLikeId;
-    private Long AccountId;
     private Long beerId;
+    private int likeCount;
+    private boolean liked; // 현재 로그인 유저가 좋아요 눌렀는지 여부
     
 }

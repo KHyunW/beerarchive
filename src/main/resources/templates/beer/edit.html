@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>맥주 수정</title></head>
+<body>
+<h2>맥주 수정</h2>
+<div th:if="${error}" th:text="${error}" style="color:red;"></div>
+<form th:action="@{/beer/edit/{id}(id=${beer.beerId})}" method="post">
+    <label>맥주 이름 <input type="text" name="beerName" th:value="${beer.beerName}" required></label><br>
+    <label>스타일
+        <select name="beerStyle" required>
+            <option value="IPA" th:selected="${beer.beerStyle == 'IPA'}">IPA</option>
+            <option value="Lager" th:selected="${beer.beerStyle == 'Lager'}">Lager</option>
+            <option value="Stout" th:selected="${beer.beerStyle == 'Stout'}">Stout</option>
+            <option value="Wheat" th:selected="${beer.beerStyle == 'Wheat'}">Wheat</option>
+            <option value="Pale Ale" th:selected="${beer.beerStyle == 'Pale Ale'}">Pale Ale</option>
+        </select>
+    </label><br>
+    <label>도수(ABV) <input type="number" name="beerAbv" step="0.1" th:value="${beer.beerAbv}" required></label><br>
+    <label>IBU <input type="number" name="beerIbu" th:value="${beer.beerIbu}" required></label><br>
+    <button type="submit">수정 완료</button>
+</form>
+<a th:href="@{/beer/detail/{id}(id=${beer.beerId})}">취소</a>
+</body>
+</html>

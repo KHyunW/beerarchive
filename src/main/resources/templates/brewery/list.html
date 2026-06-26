@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>양조장 목록</title>
+</head>
+<body>
+
+<h2>양조장 목록</h2>
+
+<!-- 검색 폼 -->
+<form th:action="@{/brewery/list}" method="get">
+    <input type="text" name="keyword" placeholder="양조장 이름 검색" th:value="${keyword}">
+    <button type="submit">검색</button>
+</form>
+
+<a th:href="@{/brewery/register}">+ 양조장 등록</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>번호</th>
+            <th>양조장 이름</th>
+            <th>삭제</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="brewery : ${breweryList}">
+            <td th:text="${brewery.breweryId}"></td>
+            <td th:text="${brewery.breweryName}"></td>
+            <td>
+                <form th:action="@{/brewery/delete/{id}(id=${brewery.breweryId})}" method="post">
+                    <button type="submit" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(breweryList)}">
+            <td colspan="3">등록된 양조장이 없습니다.</td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

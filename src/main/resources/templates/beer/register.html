@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>맥주 등록</title></head>
+<body>
+<h2>맥주 등록</h2>
+<div th:if="${error}" th:text="${error}" style="color:red;"></div>
+<form th:action="@{/beer/register}" method="post">
+    <label>맥주 이름 <input type="text" name="beerName" required></label><br>
+    <label>스타일
+        <select name="beerStyle" required>
+            <option value="">선택</option>
+            <option value="IPA">IPA</option>
+            <option value="Lager">Lager</option>
+            <option value="Stout">Stout</option>
+            <option value="Wheat">Wheat</option>
+            <option value="Pale Ale">Pale Ale</option>
+        </select>
+    </label><br>
+    <label>도수(ABV) <input type="number" name="beerAbv" step="0.1" min="0" required></label><br>
+    <label>IBU <input type="number" name="beerIbu" min="0" required></label><br>
+    <label>양조장
+        <select name="breweryId" required>
+            <option value="">선택</option>
+            <option th:each="brewery : ${breweryList}"
+                    th:value="${brewery.breweryId}"
+                    th:text="${brewery.breweryName}"></option>
+        </select>
+    </label><br>
+    <button type="submit">등록</button>
+</form>
+<a th:href="@{/beer/list}">목록으로</a>
+</body>
+</html>

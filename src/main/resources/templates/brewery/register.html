@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>양조장 등록</title></head>
+<body>
+<h2>양조장 등록</h2>
+<div th:if="${error}" th:text="${error}" style="color:red;"></div>
+<form th:action="@{/brewery/register}" method="post">
+    <label>양조장 이름 <input type="text" name="name" required></label><br>
+    <button type="submit">등록</button>
+</form>
+<a th:href="@{/brewery/list}">목록으로</a>
+</body>
+</html>

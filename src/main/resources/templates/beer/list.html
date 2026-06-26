@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>맥주 목록</title></head>
+<body>
+<h2>맥주 목록</h2>
+<form th:action="@{/beer/list}" method="get">
+    <input type="text" name="keyword" placeholder="맥주 이름 검색" th:value="${keyword}">
+    <select name="style">
+        <option value="">전체 스타일</option>
+        <option value="IPA" th:selected="${style == 'IPA'}">IPA</option>
+        <option value="Lager" th:selected="${style == 'Lager'}">Lager</option>
+        <option value="Stout" th:selected="${style == 'Stout'}">Stout</option>
+        <option value="Wheat" th:selected="${style == 'Wheat'}">Wheat</option>
+        <option value="Pale Ale" th:selected="${style == 'Pale Ale'}">Pale Ale</option>
+    </select>
+    <button type="submit">검색</button>
+</form>
+<a th:href="@{/beer/register}">+ 맥주 등록</a>
+<table>
+    <thead>
+        <tr>
+            <th>번호</th>
+            <th>맥주 이름</th>
+            <th>스타일</th>
+            <th>도수</th>
+            <th>IBU</th>
+            <th>양조장</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="beer : ${beerList}">
+            <td th:text="${beer.beerId}"></td>
+            <td>
+                <a th:href="@{/beer/detail/{id}(id=${beer.beerId})}"
+                   th:text="${beer.beerName}"></a>
+            </td>
+            <td th:text="${beer.beerStyle}"></td>
+            <td th:text="${beer.beerAbv} + '%'"></td>
+            <td th:text="${beer.beerIbu}"></td>
+            <td th:text="${beer.breweryName}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(beerList)}">
+            <td colspan="6">등록된 맥주가 없습니다.</td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>

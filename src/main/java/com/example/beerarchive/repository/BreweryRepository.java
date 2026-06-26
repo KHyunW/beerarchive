@@ -10,7 +10,7 @@ import com.example.beerarchive.entity.Brewery;
 @Repository
 public interface BreweryRepository extends JpaRepository<Brewery, Long>{
     
-    boolean existsByName(String name);
+    boolean existsByBreweryName(String breweryName);
 
-    List<Brewery> findByNameContaining(String keyword);
+    List<Brewery> findByBreweryNameContaining(String keyword);
 }
