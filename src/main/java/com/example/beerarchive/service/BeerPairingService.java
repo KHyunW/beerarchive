@@ -29,7 +29,7 @@ public class BeerPairingService {
     }
 
     // 같은 카테고리와 어울리는 다른 맥주 조회
-    public List<BeerPairingDTO> getOtherBeersByCategory(String category, Long beerId){
+    public List<BeerPairingDTO> getOtherBeersByCategory(String category, Long beerId) {
         FoodCategory foodCategory = FoodCategory.valueOf(category);
         return beerPairingRepository
                 .findByFoodCategoryAndBeer_BeerIdNot(foodCategory, beerId).stream()
@@ -38,46 +38,44 @@ public class BeerPairingService {
     }
 
     // 페어링 등록 (중복 시 좋아요 증가)
-    public void register(Long beerId, String category, String description){
+    public void register(Long beerId, String category, String description) {
         FoodCategory foodCategory = FoodCategory.valueOf(category);
         Beer beer = beerRepository.findById(beerId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 맥주입니다"));
-        if (beerPairingRepository.existsByBeer_BeerIdAndFoodCategory(beerId, foodCategory)){
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 맥주입니다"));
+        if (beerPairingRepository.existsByBeer_BeerIdAndFoodCategory(beerId, foodCategory)) {
             BeerPairing existing = beerPairingRepository
-                    .findByBeer_BeerId(beerId).stream()
-                    .filter(p -> p.getFoodCategory() == foodCategory)
-                    .findFirst()
+                    .findByBeer_BeerIdAndFoodCategory(beerId, foodCategory)
                     .orElseThrow();
             existing.setLikeCount(existing.getLikeCount() + 1);
-            beerPairingRepository.save(existing);
             return;
         }
-        
-        BeerPairing pairing = new BeerPairing();
-        pairing.setBeer(beer);
-        pairing.setFoodCategory(foodCategory);
-        pairing.setDescription(description);
+
+        BeerPairing pairing = BeerPairing.builder()
+                .beer(beer)
+                .foodCategory(foodCategory)
+                .description(description)
+                .likeCount(0)
+                .build();
         beerPairingRepository.save(pairing);
     }
 
     // 좋아요 증가
-    public void like(Long beerPairingId){
+    public void like(Long beerPairingId) {
         BeerPairing pairing = beerPairingRepository.findById(beerPairingId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 페어링입니다"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 페어링입니다."));
         pairing.setLikeCount(pairing.getLikeCount() + 1);
-        beerPairingRepository.save(pairing);
     }
 
     private BeerPairingDTO toDTO(BeerPairing pairing) {
-        BeerPairingDTO dto = new BeerPairingDTO();
-        dto.setBeerPairingId(pairing.getBeerPairingId());
-        dto.setBeerId(pairing.getBeer().getBeerId());
-        dto.setBeerName(pairing.getBeer().getBeerName());
-        dto.setFoodCategory(pairing.getFoodCategory().name());
-        dto.setFoodEmoji(pairing.getFoodCategory().getEmoji());
-        dto.setDescription(pairing.getDescription());
-        dto.setLikeCount(pairing.getLikeCount());
-        return dto;
+        return BeerPairingDTO.builder()
+                .beerPairingId(pairing.getBeerPairingId())
+                .beerId(pairing.getBeer().getBeerId())
+                .beerName(pairing.getBeer().getBeerName())
+                .foodCategory(pairing.getFoodCategory().name())
+                .foodEmoji(pairing.getFoodCategory().getEmoji())
+                .description(pairing.getDescription())
+                .likeCount(pairing.getLikeCount())
+                .build();
     }
 
 }

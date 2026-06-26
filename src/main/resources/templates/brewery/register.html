@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="UTF-8"><title>양조장 등록</title></head>
 <body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 <h2>양조장 등록</h2>
 <div th:if="${error}" th:text="${error}" style="color:red;"></div>
 <form th:action="@{/brewery/register}" method="post">

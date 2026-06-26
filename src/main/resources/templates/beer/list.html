@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="UTF-8"><title>맥주 목록</title></head>
 <body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>    
 <h2>맥주 목록</h2>
 <form th:action="@{/beer/list}" method="get">
     <input type="text" name="keyword" placeholder="맥주 이름 검색" th:value="${keyword}">

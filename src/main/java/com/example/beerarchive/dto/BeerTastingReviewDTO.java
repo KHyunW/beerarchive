@@ -13,6 +13,7 @@ public class BeerTastingReviewDTO {
     private Long reviewId;
     private Long accountId;
     private Long beerId;
+    private String nickname;
     private double rating;
     private String content;
 
