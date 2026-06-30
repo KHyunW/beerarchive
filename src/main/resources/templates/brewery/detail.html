@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>양조장 상세</title></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<h2 th:text="${brewery.breweryName}"></h2>
+
+<h3>이 양조장의 맥주</h3>
+
+<div th:if="${#lists.isEmpty(beerList)}">
+    <p>등록된 맥주가 없습니다.</p>
+</div>
+
+<table th:if="${!#lists.isEmpty(beerList)}">
+    <thead>
+        <tr>
+            <th>맥주 이름</th>
+            <th>스타일</th>
+            <th>ABV</th>
+            <th>IBU</th>
+            <th>❤️좋아요</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="beer : ${beerList}">
+            <td>
+                <a th:href="@{/beer/detail/{id}(id=${beer.beerId})}"
+                   th:text="${beer.beerName}"></a>
+            </td>
+            <td th:text="${beer.beerStyle}"></td>
+            <td th:text="${beer.beerAbv} + '%'"></td>
+            <td th:text="${beer.beerIbu}"></td>
+            <td th:text="${beer.likeCount}"></td>
+        </tr>
+    </tbody>
+</table>
+
+<a th:href="@{/brewery/list}">목록으로</a>
+
+</body>
+</html>

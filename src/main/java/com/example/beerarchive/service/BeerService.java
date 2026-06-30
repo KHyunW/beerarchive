@@ -1,5 +1,6 @@
 package com.example.beerarchive.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,8 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.beerarchive.dto.BeerDTO;
+import com.example.beerarchive.entity.Account;
 import com.example.beerarchive.entity.Beer;
 import com.example.beerarchive.entity.Brewery;
+import com.example.beerarchive.repository.AccountRepository;
+import com.example.beerarchive.repository.BeerLikeRepository;
 import com.example.beerarchive.repository.BeerRepository;
 import com.example.beerarchive.repository.BreweryRepository;
 
@@ -21,6 +25,8 @@ public class BeerService {
 
     private final BeerRepository beerRepository;
     private final BreweryRepository breweryRepository;
+    private final BeerLikeRepository beerLikeRepository;
+    private final AccountRepository accountRepository;
 
     // 맥주 목록 조회
     public List<BeerDTO> getBeerList(String keyword, String beerStyle) {
@@ -35,7 +41,14 @@ public class BeerService {
             beerList = beerRepository.findAll();
         }
 
-        return beerList.stream().map(this::toDTO).collect(Collectors.toList());
+        return beerList.stream().map(this::toDTO).sorted((a, b) -> b.getLikeCount() - a.getLikeCount()).collect(Collectors.toList());
+    }
+
+    // 양조장별 맥주 목록 조회
+    public List<BeerDTO> getBeersByBrewery(Long breweryId){
+        return beerRepository.findByBrewery_BreweryId(breweryId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     // 맥주 단건 조회
@@ -46,13 +59,15 @@ public class BeerService {
     }
 
     // 맥주 등록
-    public void register(BeerDTO dto){
+    public Long register(BeerDTO dto, Long accountId){
         if(beerRepository.existsByBeerName(dto.getBeerName())){
             throw new IllegalArgumentException("이미 등록된 맥주입니다");
         }
 
         Brewery brewery = breweryRepository.findById(dto.getBreweryId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 양조장입니다."));
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
 
         Beer beer = Beer.builder()
                 .beerName(dto.getBeerName())
@@ -60,9 +75,22 @@ public class BeerService {
                 .beerAbv(dto.getBeerAbv())
                 .beerIbu(dto.getBeerIbu())
                 .brewery(brewery)
+                .account(account)
+                .createdAt(LocalDateTime.now())
                 .build();
-        
-                beerRepository.save(beer);
+
+        return beerRepository.save(beer).getBeerId();
+    }
+
+    public boolean isEditable(Long beerId, Long accountId){
+        Beer beer = beerRepository.findById(beerId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 맥주입니다"));
+
+        boolean isOwner = beer.getAccount().getAccountId().equals(accountId);
+        boolean withinTime = LocalDateTime.now()
+                .isBefore(beer.getCreatedAt().plusMinutes(5));
+
+        return isOwner && withinTime;
     }
 
     // 맥주 수정
@@ -90,6 +118,9 @@ public class BeerService {
                 .beerIbu(beer.getBeerIbu())
                 .breweryId(beer.getBrewery().getBreweryId())
                 .breweryName(beer.getBrewery().getBreweryName())
+                .accountId(beer.getAccount().getAccountId())
+                .likeCount(beerLikeRepository.countByBeer_BeerId(beer.getBeerId()))
+                .createdAt(beer.getCreatedAt())
                 .build();
     }
 }

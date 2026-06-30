@@ -28,6 +28,6 @@ public class BeerLikeController {
         }
         
         beerLikeService.likeToggle(loginUser.getAccountId(), beerId);
-        return "redirect:/beer/detail" + beerId;
+        return "redirect:/beer/detail/" + beerId;
     }
 }

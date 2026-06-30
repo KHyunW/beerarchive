@@ -1,5 +1,6 @@
 package com.example.beerarchive.controller;
 
+import com.example.beerarchive.service.BeerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/brewery")
 public class BreweryController {
     
+    private final BeerService beerService;
     private final BreweryService breweryService;
 
     // 양조장 목록 + 검색
@@ -26,7 +28,7 @@ public class BreweryController {
         if(keyword != null && !keyword.isEmpty()){
             model.addAttribute("breweryList", breweryService.searchBreweries(keyword));
         } else {
-            model.addAttribute("breweryList", breweryService.getAllBerweries());
+            model.addAttribute("breweryList", breweryService.getAllBreweries());
         }
         model.addAttribute("keyword", keyword);
         return "brewery/list";
@@ -55,6 +57,15 @@ public class BreweryController {
             return "brewery/register";
         }
     }
+
+    // 양조장 상세 페이지
+    @GetMapping("/detail/{breweryId}")
+    public String detail(@PathVariable Long breweryId, Model model){
+        model.addAttribute("brewery", breweryService.getBrewery(breweryId));
+        model.addAttribute("beerList", beerService.getBeersByBrewery(breweryId));
+        return "brewery/detail";
+    }
+
 
     // 양조장 삭제
     @PostMapping("/delete/{breweryId}")

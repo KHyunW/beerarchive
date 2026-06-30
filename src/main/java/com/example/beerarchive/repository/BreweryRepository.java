@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.example.beerarchive.entity.Beer;
 import com.example.beerarchive.entity.Brewery;
 
 @Repository

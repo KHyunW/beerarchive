@@ -19,4 +19,8 @@ public interface BeerPairingRepository extends JpaRepository<BeerPairing, Long> 
     boolean existsByBeer_BeerIdAndFoodCategory(Long beerId, FoodCategory foodCategory);
 
     Optional<BeerPairing> findByBeer_BeerIdAndFoodCategory(Long beerId, FoodCategory foodCategory);
+
+    boolean existsByAccount_AccountIdAndBeer_BeerIdAndFoodCategory(Long accountId, Long beerId, FoodCategory foodCategory);
+
+    boolean existsByAccount_AccountIdAndBeer_BeerId(Long accountId, Long beerId);
 }

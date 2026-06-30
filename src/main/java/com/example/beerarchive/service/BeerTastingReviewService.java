@@ -32,14 +32,25 @@ public class BeerTastingReviewService {
                 .collect(Collectors.toList());
     }
 
+    // 전체 리뷰 조회
+    public List<BeerTastingReviewDTO> getAllReviews(){
+        return reviewRepository.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     // 평균 별점 조회
-    public double getAvgRation(Long beerId) {
+    public double getAvgRating(Long beerId) {
         Double avg = reviewRepository.findAvgRatingByBeerId(beerId);
         return avg != null ? Math.round(avg * 10) / 10.0 : 0.0;
     }
 
     // 리뷰 등록
     public void register(Long beerId, Long accountId, double rating, String content) {
+        // 계정당 한 번만 리뷰 가능
+        if(reviewRepository.existsByAccount_AccountIdAndBeer_BeerId(accountId, beerId)){
+            throw new IllegalArgumentException("이미 이 맥주에 리뷰를 작성하셨습니다");
+        }
 
         Beer beer = beerRepository.findById(beerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 맥주입니다"));
@@ -69,10 +80,16 @@ public class BeerTastingReviewService {
         reviewRepository.deleteById(reviewId);
     }
 
+    // 리뷰 삭제(관리자용)
+    public void adminDelete(Long reviewId){
+        reviewRepository.deleteById(reviewId);
+    }
+
     private BeerTastingReviewDTO toDTO(BeerTastingReview review) {
         return BeerTastingReviewDTO.builder()
                 .reviewId(review.getReviewId())
                 .beerId(review.getBeer().getBeerId())
+                .beerName(review.getBeer().getBeerName())
                 .accountId(review.getAccount().getAccountId())
                 .nickname(review.getAccount().getNickname())
                 .rating(review.getRating())

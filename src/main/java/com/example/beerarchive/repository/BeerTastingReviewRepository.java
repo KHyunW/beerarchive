@@ -17,4 +17,6 @@ public interface BeerTastingReviewRepository extends JpaRepository<BeerTastingRe
 
     @Query("SELECT AVG(r.rating) FROM BeerTastingReview r WHERE r.beer.beerId = :beerId")
     Double findAvgRatingByBeerId(@Param("beerId") Long beerId);
+
+    boolean existsByAccount_AccountIdAndBeer_BeerId(Long accountId, Long beerId);
 }

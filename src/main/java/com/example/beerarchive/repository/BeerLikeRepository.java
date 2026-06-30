@@ -1,5 +1,6 @@
 package com.example.beerarchive.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,6 @@ public interface BeerLikeRepository extends JpaRepository<BeerLike, Long> {
     Optional<BeerLike> findByAccount_AccountIdAndBeer_BeerId(Long accountId, Long beerId);
 
     int countByBeer_BeerId(Long beerId);
+
+    List<BeerLike> findByAccount_AccountId(Long accountId);
 }

@@ -1,5 +1,7 @@
 package com.example.beerarchive.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,5 +19,9 @@ public class BeerDTO {
     private int beerIbu;
     private Long breweryId;
     private String breweryName;
+    private Long accountId;
+    private int likeCount;
+    private LocalDateTime createdAt;
+    private String imagePath;
     
 }

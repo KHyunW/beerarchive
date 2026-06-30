@@ -1,5 +1,6 @@
 package com.example.beerarchive.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     boolean existsByNickname(String nickname);
     
     Optional<Account> findByUsername(String username);
+
+    List<Account> findByUsernameContainingOrNicknameContaining(String username, String nickname);
 }

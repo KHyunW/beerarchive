@@ -6,7 +6,7 @@
 <h2>맥주 목록</h2>
 <form th:action="@{/beer/list}" method="get">
     <input type="text" name="keyword" placeholder="맥주 이름 검색" th:value="${keyword}">
-    <select name="style">
+    <select name="beerStyle">
         <option value="">전체 스타일</option>
         <option value="IPA" th:selected="${style == 'IPA'}">IPA</option>
         <option value="Lager" th:selected="${style == 'Lager'}">Lager</option>
@@ -26,6 +26,7 @@
             <th>도수</th>
             <th>IBU</th>
             <th>양조장</th>
+            <th>❤️좋아요</th>
         </tr>
     </thead>
     <tbody>
@@ -39,9 +40,10 @@
             <td th:text="${beer.beerAbv} + '%'"></td>
             <td th:text="${beer.beerIbu}"></td>
             <td th:text="${beer.breweryName}"></td>
+            <td th:text="${beer.likeCount}"></td>
         </tr>
         <tr th:if="${#lists.isEmpty(beerList)}">
-            <td colspan="6">등록된 맥주가 없습니다.</td>
+            <td colspan="7">등록된 맥주가 없습니다.</td>
         </tr>
     </tbody>
 </table>

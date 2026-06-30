@@ -32,11 +32,12 @@ public class BeerPairing {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BEER_ID", nullable = false)
     private Beer beer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ACCOUNT_ID", nullable = false)
+    private Account account;
     @Enumerated(EnumType.STRING)
     @Column(name = "FOOD_CATEGORY", nullable = false)
     private FoodCategory foodCategory;
-    @Column(nullable = false)
-    private String description;
     @Column(columnDefinition = "INT DEFAULT 0")
     private int likeCount = 0;
 }

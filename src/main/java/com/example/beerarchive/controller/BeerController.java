@@ -1,6 +1,8 @@
 package com.example.beerarchive.controller;
 
 import com.example.beerarchive.service.BeerLikeService;
+import com.example.beerarchive.service.BeerPairingService;
+import com.example.beerarchive.service.BeerTastingReviewService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.beerarchive.common.FoodCategory;
 import com.example.beerarchive.dto.AccountDTO;
 import com.example.beerarchive.dto.BeerDTO;
 import com.example.beerarchive.service.BeerService;
@@ -22,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/beer")
 public class BeerController {
 
+    private final BeerPairingService beerPairingService;
+    private final BeerTastingReviewService beerTastingReviewService;
     private final BeerLikeService beerLikeService;
     private final BeerService beerService;
     private final BreweryService breweryService;
@@ -49,6 +54,10 @@ public class BeerController {
 
         model.addAttribute("beer", beerService.getBeer(beerId));
         model.addAttribute("likeInfo", beerLikeService.getLikeInfo(beerId, accountId));
+        model.addAttribute("reviewList", beerTastingReviewService.getReviewsByBeer(beerId));
+        model.addAttribute("avgRating", beerTastingReviewService.getAvgRating(beerId));
+        model.addAttribute("pairingList", beerPairingService.getPairingByBeer(beerId));
+        model.addAttribute("foodCategories", FoodCategory.values());
         return "beer/detail";
     }
 
@@ -58,7 +67,7 @@ public class BeerController {
         if (session.getAttribute("loginUser") == null) {
             return "redirect:/auth/login";
         }
-        model.addAttribute("breweryList", breweryService.getAllBerweries());
+        model.addAttribute("breweryList", breweryService.getAllBreweries());
         return "beer/register";
     }
 
@@ -71,7 +80,8 @@ public class BeerController {
             @RequestParam Long breweryId,
             Model model,
             HttpSession session) {
-        if (session.getAttribute("beerName") == null) {
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
+        if(loginUser == null){
             return "redirect:/auth/login";
         }
         try {
@@ -81,11 +91,11 @@ public class BeerController {
             dto.setBeerAbv(beerAbv);
             dto.setBeerIbu(beerIbu);
             dto.setBreweryId(breweryId);
-            beerService.register(dto);
-            return "redirect:/beer/list";
+            Long beerId = beerService.register(dto, loginUser.getAccountId());
+            return "redirect:/beer/detail/" + beerId;
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("breweryList", breweryService.getAllBerweries());
+            model.addAttribute("breweryList", breweryService.getAllBreweries());
             return "beer/register";
         }
     }
@@ -95,8 +105,18 @@ public class BeerController {
     public String editForm(@PathVariable Long beerId,
             Model model,
             HttpSession session) {
-        if (session.getAttribute("loginUser") == null) {
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
+        if(loginUser == null){
             return "redirect:/auth/login";
+        }
+        
+        if("ROLE_ADMIN".equals(loginUser.getRole().name())){
+            model.addAttribute("beer", beerService.getBeer(beerId));
+            return "beer/edit";
+        }
+
+        if(!beerService.isEditable(beerId, loginUser.getAccountId())){
+            return "redirect:/beer/detail/" + beerId;
         }
         model.addAttribute("beer", beerService.getBeer(beerId));
         return "beer/edit";
@@ -110,8 +130,13 @@ public class BeerController {
             @RequestParam double beerAbv,
             @RequestParam int beerIbu,
             HttpSession session) {
-        if (session.getAttribute("loginUser") == null) {
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
+        if(loginUser == null){
             return "redirect:/auth/login";
+        }
+        
+        if(!"ROLE_ADMIN".equals(loginUser.getRole().name()) && !beerService.isEditable(beerId, loginUser.getAccountId())){
+            return "redirect:/beer/detail/" + beerId;
         }
         BeerDTO dto = new BeerDTO();
         dto.setBeerName(beerName);
@@ -125,8 +150,13 @@ public class BeerController {
     // 맥주 삭제
     @PostMapping("/delete/{beerId}")
     public String delete(@PathVariable Long beerId, HttpSession session) {
-        if (session.getAttribute("loginUser") == null) {
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
+        if(loginUser == null){
             return "redirect:/auth/login";
+        }
+
+        if(!"ROLE_ADMIN".equals(loginUser.getRole().name())){
+            return "redirect:/beer/list";
         }
         beerService.delete(beerId);
         return "redirect:/beer/list";

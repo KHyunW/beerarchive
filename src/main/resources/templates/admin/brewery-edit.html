@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>양조장 수정</title></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<h2>양조장 수정 (관리자)</h2>
+<form th:action="@{/admin/breweries/edit/{id}(id=${brewery.breweryId})}" method="post">
+    <label>양조장 이름
+        <input type="text" name="breweryName" th:value="${brewery.breweryName}" required>
+    </label><br>
+    <button type="submit">수정 완료</button>
+</form>
+<a th:href="@{/admin/breweries}">목록으로</a>
+</body>
+</html>

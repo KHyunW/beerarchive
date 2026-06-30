@@ -15,7 +15,6 @@ public class BeerPairingDTO {
     private String beerName;
     private String foodCategory;
     private String foodEmoji;
-    private String description;
     private int likeCount;
 
 }

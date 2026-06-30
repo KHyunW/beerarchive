@@ -37,4 +37,15 @@ public class AccountService {
 
         accountRepository.save(account);
     }
+
+    public void changePassword(Long accountId, String currentPassword, String newPassword){
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+
+        if(!account.getPassword().equals(currentPassword)){
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다");
+        }
+
+        account.setPassword(newPassword);
+    }
 }

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>맥주 관리</title></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<h2>맥주 관리</h2>
+<form th:action="@{/admin/beers}" method="get">
+    <input type="text" name="keyword" placeholder="맥주 이름 검색" th:value="${keyword}">
+    <button type="submit">검색</button>
+</form>
+<a th:href="@{/admin/beers/register}">+ 맥주 등록</a>
+<table>
+    <thead>
+        <tr>
+            <th>번호</th><th>맥주 이름</th><th>스타일</th><th>ABV</th><th>IBU</th><th>양조장</th><th>수정</th><th>삭제</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="beer : ${beerList}">
+            <td th:text="${beer.beerId}"></td>
+            <td th:text="${beer.beerName}"></td>
+            <td th:text="${beer.beerStyle}"></td>
+            <td th:text="${beer.beerAbv} + '%'"></td>
+            <td th:text="${beer.beerIbu}"></td>
+            <td th:text="${beer.breweryName}"></td>
+            <td><a th:href="@{/admin/beers/edit/{id}(id=${beer.beerId})}">수정</a></td>
+            <td>
+                <form th:action="@{/admin/beers/delete/{id}(id=${beer.beerId})}" method="post">
+                    <button type="submit" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+                </form>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<a th:href="@{/admin/dashboard}">대시보드로</a>
+</body>
+</html>

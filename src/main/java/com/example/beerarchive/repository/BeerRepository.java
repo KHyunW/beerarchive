@@ -18,4 +18,6 @@ public interface BeerRepository extends JpaRepository<Beer, Long> {
 
     List<Beer> findByBeerNameContainingAndBeerStyle(String keyword, String beerStyle);
 
+    List<Beer> findByBrewery_BreweryId(Long breweryId);
+
 }

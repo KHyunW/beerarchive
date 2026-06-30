@@ -7,7 +7,7 @@
 
 <table>
     <tr><th>스타일</th><td th:text="${beer.beerStyle}"></td></tr>
-    <tr><th>도수</th><td th:text="${beer.beerAbv} + '%'"></td></tr>
+    <tr><th>ABV</th><td th:text="${beer.beerAbv} + '%'"></td></tr>
     <tr><th>IBU</th><td th:text="${beer.beerIbu}"></td></tr>
     <tr><th>양조장</th><td th:text="${beer.breweryName}"></td></tr>
 </table>
@@ -21,14 +21,126 @@
 </form>
 
 <!-- 페어링 섹션 (BeerPairing 완성 후 채울 예정) -->
+<h3>회원들이 추천한 어울리는 안주</h3>
+<div style="display:flex; gap:12px; flex-wrap:wrap;">
+    <div th:each="pairing : ${pairingList}"
+         th:data-category="${pairing.foodCategory}"
+         th:data-beerid="${beer.beerId}"
+         onmouseenter="loadOtherBeers(this)"
+         onmouseleave="hideOtherBeers(this)"
+         style="border:1px solid #ccc; padding:12px; cursor:pointer;">
+        <div th:text="${pairing.foodEmoji}"></div>
+        <div th:text="${pairing.foodCategory}"></div>
+        <!-- 추천 수만 표시 -->
+        <div style="font-size:12px; color:#888;">
+            추천 <span th:text="${pairing.likeCount}"></span>
+        </div>
+        
+        <div class="other-beers" style="display:none; margin-top:8px;"></div>
+    </div>
+</div>
+<div th:if="${pairingError}" th:text="${pairingError}" style="color:red"></div>
 
+<div th:if="${session.loginUser != null}">
+    <h3>안주 페어링 추천</h3>
+    <form th:action="@{/pairing/register}" method="post">
+        <input type="hidden" name="beerId" th:value="${beer.beerId}">
+        <label>카테고리
+            <select name="foodCategory" required>
+                <option value="">선택</option>
+                <option th:each="category : ${foodCategories}"
+                        th:value="${category.name()}"
+                        th:text="${category.getEmoji() + ' ' + category.name()}"></option>
+            </select>
+        </label><br>
+        <button type="submit">추천하기</button>
+    </form>
+</div>
 <!-- 리뷰 섹션 (BeerTastingReview 완성 후 채울 예정) -->
+<!-- 평균 별점 -->
+<h3>평균 별점: <span th:text="${avgRating}"></span> / 5.0</h3>
 
-<a th:href="@{/beer/edit/{id}(id=${beer.beerId})}">수정</a>
-<form th:action="@{/beer/delete/{id}(id=${beer.beerId})}" method="post">
-    <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
-</form>
+<!-- 리뷰 목록 -->
+<h3>시음 리뷰</h3>
+<div th:each="review : ${reviewList}">
+    <div>
+        <span th:text="${review.nickname}"></span>
+        <span th:text="${review.rating} + '★'"></span>
+    </div>
+    <div th:text="${review.content}"></div>
+    <!-- 본인 리뷰만 삭제 버튼 표시 -->
+    <form th:if="${session.loginUser != null and session.loginUser.accountId == review.accountId}"
+          th:action="@{/review/delete/{id}(id=${review.reviewId})}" method="post">
+        <input type="hidden" name="beerId" th:value="${beer.beerId}">
+        <button type="submit" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+    </form>
+    <hr>
+</div>
+
+<div th:if="${reviewError}" th:text="${reviewError}" style="color:red;"></div>
+
+<!-- 리뷰 등록 폼 -->
+<div th:if="${session.loginUser != null}">
+    <h3>리뷰 작성</h3>
+    <form th:action="@{/review/register}" method="post">
+        <input type="hidden" name="beerId" th:value="${beer.beerId}">
+        <label>별점
+            <select name="rating" required>
+                <option value="1.0">⭐ 1.0</option>
+                <option value="2.0">⭐⭐ 2.0</option>
+                <option value="3.0">⭐⭐⭐ 3.0</option>
+                <option value="4.0">⭐⭐⭐⭐ 4.0</option>
+                <option value="5.0">⭐⭐⭐⭐⭐ 5.0</option>
+            </select>
+        </label><br>
+        <label>한 줄 평
+            <input type="text" name="content" placeholder="맥주 한 줄 평을 입력해주세요">
+        </label><br>
+        <button type="submit">리뷰 등록</button>
+    </form>
+</div>
+<div th:if="${session.loginUser == null}">
+    <a th:href="@{/auth/login}">로그인 후 리뷰를 작성할 수 있습니다.</a>
+</div>
+
+<!-- 관리자는 항상 수정/삭제 버튼 표시 -->
+<div th:if="${session.loginUser != null and session.loginUser.role.name() == 'ADMIN'}">
+    <a th:href="@{/beer/edit/{id}(id=${beer.beerId})}">수정</a>
+    <form th:action="@{/beer/delete/{id}(id=${beer.beerId})}" method="post">
+        <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+    </form>
+</div>
+
+<!-- 본인이 등록한 맥주이고 5분 이내인 경우만 수정 버튼 표시 -->
+<div th:if="${session.loginUser != null
+             and session.loginUser.role.name() != 'ADMIN'
+             and session.loginUser.accountId == beer.accountId
+             and beer.createdAt.isAfter(#temporals.createNow().minusMinutes(5))}">
+    <a th:href="@{/beer/edit/{id}(id=${beer.beerId})}">수정 (5분 이내)</a>
+</div>
 <a th:href="@{/beer/list}">목록으로</a>
+<script>
+function loadOtherBeers(card) {
+    const category = card.dataset.category;
+    const beerId = card.dataset.beerid;
+    const box = card.querySelector('.other-beers');
 
+    fetch(`/pairing/others?category=${category}&beerId=${beerId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.length === 0) {
+                box.innerHTML = '<div>다른 추천 맥주가 없습니다.</div>';
+            } else {
+                box.innerHTML = '<div>이 안주와 어울리는 다른 맥주</div>' +
+                    data.map(b => `<div>🍺 ${b.beerName}</div>`).join('');
+            }
+            box.style.display = 'block';
+        });
+}
+
+function hideOtherBeers(card) {
+    card.querySelector('.other-beers').style.display = 'none';
+}
+</script>
 </body>
 </html>

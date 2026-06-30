@@ -18,7 +18,7 @@ public class BreweryService {
     private final BreweryRepository breweryRepository;
 
     // 전체 양조장 목록
-    public List<BreweryDTO> getAllBerweries(){
+    public List<BreweryDTO> getAllBreweries(){
         return breweryRepository.findAll().stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
@@ -46,6 +46,13 @@ public class BreweryService {
         Brewery brewery = new Brewery();
         brewery.setBreweryName(breweryName);
         breweryRepository.save(brewery);
+    }
+
+    // 양조장 수정
+    public void updateBrewery(Long breweryId, String breweryName){
+        Brewery brewery = breweryRepository.findById(breweryId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 양조장입니다"));
+        brewery.setBreweryName(breweryName);
     }
 
     // 양조장 삭제

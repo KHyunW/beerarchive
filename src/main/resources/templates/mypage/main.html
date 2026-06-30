@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>마이페이지</title></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<h2>마이페이지</h2>
+
+<h3>내 정보</h3>
+<table>
+    <tr><th>아이디</th><td th:text="${account.username}"></td></tr>
+    <tr><th>이메일</th><td th:text="${account.email}"></td></tr>
+    <tr><th>닉네임</th><td th:text="${account.nickname}"></td></tr>
+</table>
+<a th:href="@{/mypage/password}">비밀번호 변경</a>
+
+<hr>
+
+<h3>내가 등록한 맥주 (<span th:text="${#lists.size(myBeers)}"></span>)</h3>
+<ul>
+    <li th:each="beer : ${myBeers}">
+        <a th:href="@{/beer/detail/{id}(id=${beer.beerId})}" th:text="${beer.beerName}"></a>
+        - <span th:text="${beer.beerStyle}"></span>
+    </li>
+    <li th:if="${#lists.isEmpty(myBeers)}">등록한 맥주가 없습니다.</li>
+</ul>
+
+<hr>
+
+<h3>내가 쓴 리뷰 (<span th:text="${#lists.size(myReviews)}"></span>)</h3>
+<ul>
+    <li th:each="review : ${myReviews}">
+        <a th:href="@{/beer/detail/{id}(id=${review.beerId})}" th:text="${review.beerName}"></a>
+        - <span th:text="${review.rating} + '★'"></span>
+        - <span th:text="${review.content}"></span>
+    </li>
+    <li th:if="${#lists.isEmpty(myReviews)}">작성한 리뷰가 없습니다.</li>
+</ul>
+
+<hr>
+
+<h3>내가 좋아요한 맥주 (<span th:text="${#lists.size(likedBeers)}"></span>)</h3>
+<ul>
+    <li th:each="beer : ${likedBeers}">
+        <a th:href="@{/beer/detail/{id}(id=${beer.beerId})}" th:text="${beer.beerName}"></a>
+    </li>
+    <li th:if="${#lists.isEmpty(likedBeers)}">좋아요한 맥주가 없습니다.</li>
+</ul>
+
+<hr>
+
+<h3>내가 추천한 안주 페어링 (<span th:text="${#lists.size(myVotes)}"></span>)</h3>
+<ul>
+    <li th:each="vote : ${myVotes}">
+        <a th:href="@{/beer/detail/{id}(id=${vote.beer.beerId})}" th:text="${vote.beer.beerName}"></a>
+        - <span th:text="${vote.beerPairing.foodCategory.getEmoji() + ' ' + vote.beerPairing.foodCategory.name()}"></span>
+    </li>
+    <li th:if="${#lists.isEmpty(myVotes)}">추천한 페어링이 없습니다.</li>
+</ul>
+
+</body>
+</html>
