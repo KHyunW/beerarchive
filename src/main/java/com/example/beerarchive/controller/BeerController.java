@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.beerarchive.common.FoodCategory;
 import com.example.beerarchive.dto.AccountDTO;
@@ -78,6 +79,7 @@ public class BeerController {
             @RequestParam double beerAbv,
             @RequestParam int beerIbu,
             @RequestParam Long breweryId,
+            @RequestParam(required = false) MultipartFile imageFile,
             Model model,
             HttpSession session) {
         AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
@@ -91,7 +93,7 @@ public class BeerController {
             dto.setBeerAbv(beerAbv);
             dto.setBeerIbu(beerIbu);
             dto.setBreweryId(breweryId);
-            Long beerId = beerService.register(dto, loginUser.getAccountId());
+            Long beerId = beerService.register(dto, loginUser.getAccountId(), imageFile);
             return "redirect:/beer/detail/" + beerId;
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
@@ -129,6 +131,7 @@ public class BeerController {
             @RequestParam String beerStyle,
             @RequestParam double beerAbv,
             @RequestParam int beerIbu,
+            @RequestParam(required = false) MultipartFile imageFile,
             HttpSession session) {
         AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
         if(loginUser == null){
@@ -143,7 +146,7 @@ public class BeerController {
         dto.setBeerStyle(beerStyle);
         dto.setBeerAbv(beerAbv);
         dto.setBeerIbu(beerIbu);
-        beerService.update(beerId, dto);
+        beerService.update(beerId, dto, imageFile);
         return "redirect:/beer/detail/" + beerId;
     }
 

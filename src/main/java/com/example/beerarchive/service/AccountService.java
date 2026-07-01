@@ -48,4 +48,38 @@ public class AccountService {
 
         account.setPassword(newPassword);
     }
+
+
+    // ------- 등급 시스템 --------
+    
+    // 맥주 등록 시 +10점
+    public void addBeerPoint(Long accountId){
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+        account.setPoint(account.getPoint() + 10);
+    }
+
+    // 리뷰 작성 시 +5점
+    public void addReviewPoint(Long accountId){
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+        account.setPoint(account.getPoint() + 5);
+    }
+
+    // 포인트 차감 (맥주 삭제)
+    public void subtractBeerPoint(Long accountId){
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+        int newPoint = Math.max(0, account.getPoint() - 10);
+        account.setPoint(newPoint);
+    }
+
+    // 포인트 차감 (리뷰 삭제)
+    public void subtractReviewPoint(Long accountId){
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+        int newPoint = Math.max(0, account.getPoint() - 5);
+        account.setPoint(newPoint);
+    }
+
 }

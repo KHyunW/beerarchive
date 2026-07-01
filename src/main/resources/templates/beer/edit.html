@@ -5,7 +5,7 @@
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 <h2>맥주 수정</h2>
 <div th:if="${error}" th:text="${error}" style="color:red;"></div>
-<form th:action="@{/beer/edit/{id}(id=${beer.beerId})}" method="post">
+<form th:action="@{/beer/edit/{id}(id=${beer.beerId})}" method="post" enctype="multipart/form-data">
     <label>맥주 이름 <input type="text" name="beerName" th:value="${beer.beerName}" required></label><br>
     <label>스타일
         <select name="beerStyle" required>
@@ -18,6 +18,12 @@
     </label><br>
     <label>도수(ABV) <input type="number" name="beerAbv" step="0.1" th:value="${beer.beerAbv}" required></label><br>
     <label>IBU <input type="number" name="beerIbu" th:value="${beer.beerIbu}" required></label><br>
+    <div th:if="${beer.imagePath != null}">
+        <p>현재 이미지</p>
+        <img th:src="${beer.imagePath}" style="max-width:200px;" />
+    </div>
+    <label>이미지 변경 <input type="file" name="imageFile" accept="image/*"></label><br>
+    
     <button type="submit">수정 완료</button>
 </form>
 <a th:href="@{/beer/detail/{id}(id=${beer.beerId})}">취소</a>

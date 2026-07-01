@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.beerarchive.dto.AccountDTO;
 import com.example.beerarchive.dto.BeerDTO;
@@ -100,6 +101,7 @@ public class AdminController {
                                 @RequestParam double beerAbv,
                                 @RequestParam int beerIbu,
                                 @RequestParam Long breweryId,
+                                @RequestParam(required = false) MultipartFile imageFile,
                                 HttpSession session,
                                 Model model){
         if(!isAdmin(session)){
@@ -113,7 +115,7 @@ public class AdminController {
             dto.setBeerAbv(beerAbv);
             dto.setBeerIbu(beerIbu);
             dto.setBreweryId(breweryId);
-            beerService.register(dto, loginUser.getAccountId());
+            beerService.register(dto, loginUser.getAccountId(), imageFile);
             return "redirect:/admin/beers";
         } catch(IllegalArgumentException e){
             model.addAttribute("error", e.getMessage());
@@ -142,6 +144,7 @@ public class AdminController {
                             @RequestParam String beerStyle,
                             @RequestParam double beerAbv,
                             @RequestParam int beerIbu,
+                            @RequestParam(required = false) MultipartFile imageFile,
                             HttpSession session){
         if(!isAdmin(session)){
             return "redirect:/auth/login";
@@ -151,7 +154,7 @@ public class AdminController {
         dto.setBeerStyle(beerStyle);
         dto.setBeerAbv(beerAbv);
         dto.setBeerIbu(beerIbu);
-        beerService.update(beerId, dto);
+        beerService.update(beerId, dto, imageFile);
         return "redirect:/admin/beers";
     }
 

@@ -26,14 +26,22 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long accountId;
+    
     @Column(nullable = false, unique = true)
     private String username;
+    
     @Column(nullable = false)
     private String password;
+    
     @Column(nullable = false, unique = true)
     private String email;
+    
     @Column(nullable = false, unique = true)
     private String nickname;
+    
+    @Column(columnDefinition = "INT DEFAULT 0")
+    private int point = 0;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AccountRole role;

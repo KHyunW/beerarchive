@@ -11,6 +11,22 @@
     <tr><th>아이디</th><td th:text="${account.username}"></td></tr>
     <tr><th>이메일</th><td th:text="${account.email}"></td></tr>
     <tr><th>닉네임</th><td th:text="${account.nickname}"></td></tr>
+    <tr>
+        <th>등급</th>
+        <td>
+            <span th:text="${gradeEmoji}"></span>
+            <span th:text="${grade}"></span>
+            (<span th:text="${point}"></span>)
+        </td>
+    </tr>
+    <tr th:if="${pointsToNext > 0}">
+        <th>다음 등급까지</th>
+        <td th:text="${pointsToNext} + '점 낮음'"></td>
+    </tr>
+    <tr th:if="${pointsToNext == 0}">
+        <th>다음 등급까지</th>
+        <td>🪣 최고 등급입니다!</td>
+    </tr>
 </table>
 <a th:href="@{/mypage/password}">비밀번호 변경</a>
 

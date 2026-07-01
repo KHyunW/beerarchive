@@ -17,6 +17,10 @@ public class AccountDTO {
     private String password;
     private String email;
     private String nickname;
+    private int point;
+    private String grade;
+    private String gradeEmoji;
+    private int pointsToNext;
     private AccountRole role;
     
 }

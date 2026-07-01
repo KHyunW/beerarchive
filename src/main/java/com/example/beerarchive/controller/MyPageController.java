@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.beerarchive.common.AccountGrade;
 import com.example.beerarchive.dto.AccountDTO;
 import com.example.beerarchive.dto.BeerDTO;
 import com.example.beerarchive.dto.BeerTastingReviewDTO;
+import com.example.beerarchive.entity.Account;
 import com.example.beerarchive.entity.BeerLike;
 import com.example.beerarchive.entity.BeerPairingVote;
+import com.example.beerarchive.repository.AccountRepository;
 import com.example.beerarchive.repository.BeerLikeRepository;
 import com.example.beerarchive.repository.BeerPairingVoteRepository;
 import com.example.beerarchive.service.AccountService;
@@ -34,6 +37,7 @@ public class MyPageController {
     private final BeerLikeRepository beerLikeRepository;
     private final BeerPairingVoteRepository beerPairingVoteRepository;
     private final AccountService accountService;
+    private final AccountRepository accountRepository;
 
     // 마이페이지 메인
     @GetMapping
@@ -44,8 +48,17 @@ public class MyPageController {
         }
 
         Long accountId = loginUser.getAccountId();
+        Account account = accountRepository.findById(accountId).orElseThrow();
+
+        int point = account.getPoint();
+        AccountGrade grade = AccountGrade.of(point);
+        int pointsToNext = AccountGrade.pointsToTextGrade(point);
 
         model.addAttribute("account", loginUser);
+        model.addAttribute("point", point);
+        model.addAttribute("grade", grade.name());
+        model.addAttribute("gradeEmoji", grade.getEmoji());
+        model.addAttribute("pointsToNext", pointsToNext);
 
         // 내가 등록한 맥주 목록
         List<BeerDTO> myBeers = beerService.getBeerList(null, null).stream()

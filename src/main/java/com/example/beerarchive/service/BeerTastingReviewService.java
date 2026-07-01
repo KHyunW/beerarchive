@@ -24,6 +24,7 @@ public class BeerTastingReviewService {
     private final BeerTastingReviewRepository reviewRepository;
     private final BeerRepository beerRepository;
     private final AccountRepository accountRepository;
+    private final AccountService accountService;
 
     // 특정 맥주 리뷰 목록 조회
     public List<BeerTastingReviewDTO> getReviewsByBeer(Long beerId) {
@@ -65,6 +66,8 @@ public class BeerTastingReviewService {
                 .build();
 
         reviewRepository.save(review);
+
+        accountService.addReviewPoint(accountId);
     }
 
     // 리뷰 삭제
@@ -78,6 +81,8 @@ public class BeerTastingReviewService {
         }
 
         reviewRepository.deleteById(reviewId);
+
+        accountService.subtractReviewPoint(accountId);
     }
 
     // 리뷰 삭제(관리자용)

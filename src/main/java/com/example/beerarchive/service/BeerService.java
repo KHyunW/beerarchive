@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.beerarchive.dto.BeerDTO;
 import com.example.beerarchive.entity.Account;
@@ -23,10 +24,12 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class BeerService {
 
+    private final AccountService accountService;
     private final BeerRepository beerRepository;
     private final BreweryRepository breweryRepository;
     private final BeerLikeRepository beerLikeRepository;
     private final AccountRepository accountRepository;
+    private final FileStorageService fileStorageService;
 
     // 맥주 목록 조회
     public List<BeerDTO> getBeerList(String keyword, String beerStyle) {
@@ -59,7 +62,7 @@ public class BeerService {
     }
 
     // 맥주 등록
-    public Long register(BeerDTO dto, Long accountId){
+    public Long register(BeerDTO dto, Long accountId, MultipartFile imageFile){
         if(beerRepository.existsByBeerName(dto.getBeerName())){
             throw new IllegalArgumentException("이미 등록된 맥주입니다");
         }
@@ -69,6 +72,8 @@ public class BeerService {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
 
+        String imagePath = fileStorageService.store(imageFile);
+
         Beer beer = Beer.builder()
                 .beerName(dto.getBeerName())
                 .beerStyle(dto.getBeerStyle())
@@ -76,10 +81,15 @@ public class BeerService {
                 .beerIbu(dto.getBeerIbu())
                 .brewery(brewery)
                 .account(account)
+                .imagePath(imagePath)
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return beerRepository.save(beer).getBeerId();
+        Long beerId = beerRepository.save(beer).getBeerId();
+
+        accountService.addBeerPoint(accountId);
+
+        return beerId;
     }
 
     public boolean isEditable(Long beerId, Long accountId){
@@ -94,7 +104,7 @@ public class BeerService {
     }
 
     // 맥주 수정
-    public void update(Long beerId, BeerDTO dto){
+    public void update(Long beerId, BeerDTO dto, MultipartFile imageFile){
         Beer beer = beerRepository.findById(beerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 맥주입니다"));
 
@@ -102,11 +112,22 @@ public class BeerService {
         beer.setBeerStyle(dto.getBeerStyle());
         beer.setBeerAbv(dto.getBeerAbv());
         beer.setBeerIbu(dto.getBeerIbu());
+
+        if(imageFile != null && !imageFile.isEmpty()){
+            String imagePath = fileStorageService.store(imageFile);
+            beer.setImagePath(imagePath);
+        }
     }
 
     // 맥주 삭제
     public void delete(Long beerId){
+        Beer beer = beerRepository.findById(beerId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 맥주입니다"));
+        Long accountId = beer.getAccount().getAccountId();
+
         beerRepository.deleteById(beerId);
+
+        accountService.subtractBeerPoint(accountId);
     }
 
     private BeerDTO toDTO(Beer beer){
@@ -119,6 +140,7 @@ public class BeerService {
                 .breweryId(beer.getBrewery().getBreweryId())
                 .breweryName(beer.getBrewery().getBreweryName())
                 .accountId(beer.getAccount().getAccountId())
+                .imagePath(beer.getImagePath())
                 .likeCount(beerLikeRepository.countByBeer_BeerId(beer.getBeerId()))
                 .createdAt(beer.getCreatedAt())
                 .build();
